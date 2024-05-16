@@ -16,7 +16,7 @@ router.post("/register", async (req, res) => {
     }
     const newUser = await Users.create({username, password, first_name, last_name, location});
     if(!newUser){
-      return res.status(401).json({messeage: "Fail!"});
+      return res.status(402).json({messeage: "Fail!"});
     }
     res.status(200).json({message: "Register Succesfully"});
   } catch (err) {
@@ -34,7 +34,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid username or password" });
     }
     const token = jwt.sign({ user }, privateKey, { expiresIn: "1h" });
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
@@ -43,7 +43,7 @@ router.post("/login", async (req, res) => {
 
 //dang xuat
 router.post("/logout", verifyToken, async (req, res) => {
-  res.json({ message: 'Logged out successfully'});
+  res.status(200).json({ message: 'Logged out successfully'});
 });
 
 //Lay danh sach user
@@ -71,7 +71,7 @@ router.get("/:id", async (req, res) => {
       return res.status(404).send("User not found");
     }
     delete user.__v;
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
