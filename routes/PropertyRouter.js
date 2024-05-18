@@ -6,7 +6,7 @@ const multer = require("multer");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./uploads");
+    cb(null, "./uploads/properties");
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -63,6 +63,32 @@ router.get("/list", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "User have no property!" });
     }
     res.status(200).json(listProperty);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+//update property
+router.patch("/:id", upload.single('images'), async (req, res) => {
+  try {
+    const propertyId = req.params.id;
+    const property = await Property.findById(propertyId);
+    if(!property){
+      return res.status(404).json({message: "Property not found!"});
+    }
+    const updates = {
+      ...req.body,
+      images: req.file.filename
+    };
+    for (const field in updates) {
+      if (property.schema.paths[field]) { 
+        property[field] = updates[field];
+      }
+    }
+    await property.save();
+    return res.status(200).json({message: "Update Success!", updatedProperty: property})
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
